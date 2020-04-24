@@ -1,8 +1,14 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-undef */
 /* eslint-disable prefer-const */
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 
+const jwt = require('jsonwebtoken');
+const secret = require('../config/secret.js');
 const Users = require('../users/users-model.js');
+
+// const authorize = require('../middleweare');
 
 router.post('/register', (req, res) => {
   const user = req.body;
@@ -13,7 +19,13 @@ router.post('/register', (req, res) => {
 
   Users.add(user)
     .then((saved) => {
-      res.status(201).json(saved);
+      const token = generateToken(saved);
+      res.status(201).json({
+        created_user: saved,
+        id: saved.id,
+        token,
+        message: "You've successfully created a new user",
+      });
     })
     .catch((err) => {
       res.status(500).json({ message: 'Registration error!', error: err });
@@ -24,6 +36,20 @@ router.post('/register', (req, res) => {
 //   const { username } = req.headers;
 //   res.status(200).json({ message: `Welcome ${username}!` });
 // });
+
+function generateToken(user) {
+  const payload = {
+    subject: user.id,
+    username: user.username,
+  };
+
+  const options = {
+    expiresIn: '1h',
+  };
+
+  return jwt.sign(payload, secret.jwtSecret, options);
+}
+
 router.post('/login', (req, res) => {
   let { username, password } = req.body;
 
@@ -31,8 +57,14 @@ router.post('/login', (req, res) => {
     .first()
     .then((user) => {
       if (user && bcrypt.compareSync(password, user.password)) {
+        const token = generateToken(user);
         req.session.user = username;
-        res.status(200).json({ message: `Welcome to the app ${username} !` });
+        res.status(200).json({
+          username: user.username,
+          id: user.id,
+          message: `Welcome to the app ${username} !`,
+          token,
+        });
       } else {
         res.status(401).json({ message: 'Invalid credentials' });
       }
@@ -53,4 +85,5 @@ router.delete('/logout', (req, res) => {
     res.end();
   }
 });
+
 module.exports = router;

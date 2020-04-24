@@ -20,8 +20,8 @@ const LoginForm = () => {
             .then(res => {
                 console.log(res, "res.data.token")// need to fix the back end and add token there
                 localStorage.setItem('token', res.data.token);
-                localStorage.setItem('haha', 'ahah');
-                localStorage.setItem('userId', res.data.id)
+                // localStorage.setItem('haha', 'ahah');
+                // localStorage.setItem('userId', res.data.id)
                 history.push('/api/users');
             })
             .catch(err => {

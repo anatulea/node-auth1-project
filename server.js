@@ -8,7 +8,6 @@ const helmet = require('helmet');
 const cors = require('cors');
 
 const restricted = require('./middleweare');
-// const authorization = require('./middleweare');
 
 const usersRouter = require('./users/users-router.js');
 const authRouter = require('./auth/auth-router.js');
@@ -16,7 +15,6 @@ const authRouter = require('./auth/auth-router.js');
 const server = express();
 
 // configure express-session middleware
-
 const sessionConfig = {
   name: 'chocolate-chip',
   secret: 'myspeshulsecret',
